@@ -1,35 +1,46 @@
 function Y = rungeKutta(f, y0, x0, xf, h)
-    %   This function uses the Runge-Kutta method to solve the system of equations
-    %   defined in the function f. It takes the following inputs:
-    %   - f: function handle for the system of equations
-    %   - y0: initial conditions (vector)
-    %   - x0: initial x
-    %   - xf: final x
-    %   - h: time step size
-    %   The function returns the solution Y at each time step.
+% rungeKutta.m
+% Solve ODE using 4th-order Runge-Kutta method
+%   Inputs:
+%     F  - Function handle @(x,y) that returns dy/dx at point (x,y)
+%     y0 - Initial value(s) of y at x0 (scalar or vector)
+%     x0 - Initial value of x
+%     xf - Final value of x
+%     h  - Step size
+%
+%   Output:
+%     Y  - Solution vector/matrix
+
+    % Ensure y0 is a row vector
+    y0 = reshape(y0, 1, []);
+    % Get number of varibles in the system
+    numVars = length(y0);
     
-    %% Implementation
-    %   Initialize time and number of steps
+    % Calculate number of steps
+    n = round((xf - x0) / h) + 1;
     
-    x = x0:h:xf;
-    w1 = 1/6;
-    w2 = 2/6;
-    w3 = 2/6;
-    w4 = 1/6;
-    a1 = 1/2;
-    a2 = 1/2;
-    a3 = 1;
-    b1 = 1/2;
-    b2 = 1/2;
-    b3 = 1;
-    nSteps = length(x);
-    
-    %   Initialize solution matrix
-    Y = zeros(length(y0));
-    %   Set initial conditions
+    % Prepare output array
+    Y = zeros(n, numVars);
     Y(1, :) = y0;
-    %   Run the Runge-Kutta method
-    for i = 1:nSteps-1
-        k1 = h(f(x(i), Y(i)));
+    
+    % Initialize x
+    x = x0;
+    
+    % Perform RK4 integration
+    for i = 2:n
+        % Current state
+        yi = Y(i-1, :);
+        
+        % RK4 stages, reshape used to ensure row vectors
+        k1 = reshape(f(x, yi), 1, []);
+        k2 = reshape(f(x + h/2, yi + h/2 * k1), 1, []);
+        k3 = reshape(f(x + h/2, yi + h/2 * k2), 1, []);
+        k4 = reshape(f(x + h, yi + h * k3), 1, []);
+        
+        % Update solution
+        Y(i, :) = yi + h/6 * (k1 + 2*k2 + 2*k3 + k4);
+        
+        % Update x
+        x = x + h;
     end
 end
