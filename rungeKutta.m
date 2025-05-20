@@ -2,14 +2,15 @@ function Y = rungeKutta(f, y0, x0, xf, h)
 % rungeKutta.m
 % Solve ODE using 4th-order Runge-Kutta method
 %   Inputs:
-%     F  - Function handle @(x,y) that returns dy/dx at point (x,y)
-%     y0 - Initial value(s) of y at x0 (scalar or vector)
-%     x0 - Initial value of x
-%     xf - Final value of x
-%     h  - Step size
+%     F         - Function handle @(x,y) that returns dy/dx at point
+%                 (x,y). Represents the system of ODEs.
+%     y0        - Initial value(s) of y at x0 (scalar or vector)
+%     x0        - Initial value of x
+%     xf        - Final value of x
+%     h         - Step size
 %
 %   Output:
-%     Y  - Solution vector/matrix
+%     Y         - Solution vector/matrix
 
     % Ensure y0 is a row vector
     y0 = reshape(y0, 1, []);
