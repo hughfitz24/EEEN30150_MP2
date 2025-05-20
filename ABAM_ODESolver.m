@@ -1,43 +1,56 @@
-function [T, Y] = ABAM_ODESolver(f, y0, x0, xf, h)
-% ABAM: full 4th-order predictor-corrector
-%   f  - @(t,y)
-%   y0 - initial row vector
-% Outputs:
-%   T (N×1), Y (N×m)
+function [X, Y] = ABAM_ODESolver(f, y0, x0, xf, h)
+    % ABAM_ODESolver.m
+    % Solves system of ODEs using 4th-order Adams-Bashforth-Moulton method
+    % Bootstraps with 4th-order Runge-Kutta
+    % 
+    % Inputs:
+    %   f  - function handle @(x,y), returns dy/dx
+    %   y0 - initial condition
+    %   x0 - initial x
+    %   xf - final x
+    %   h  - step size
+    % Outputs:
+    %   X  - x values
+    %   Y  - y values (each row corresponds to x in X)
 
-    % build time vector
-    T = (x0:h:xf)';
-    N = numel(T);
+    X = (x0:h:xf)';
+    N = numel(X);
 
-    % ensure row vector
-    y0 = reshape(y0,1,[]);
-    m  = size(y0,2);
+    % Ensure y0 is a row vector
+    y0 = reshape(y0, 1, []);
+    m = numel(y0);
 
-    % preallocate
+    % Preallocate
     Y = zeros(N, m);
     Y(1,:) = y0;
 
-    % 1) Bootstrap first 4 points via RK4
-    Y_boot = rungeKutta(f, y0, x0, x0 + 3*h, h);  % returns 4 rows
+    % Bootstrap 4 points using Runge-Kutta
+    Y_boot = rungeKutta(f, y0, x0, x0 + 3*h, h); % 4×m
     Y(1:4,:) = Y_boot;
 
-    % 2) Main loop from n=4 to N-1 (so that n-3 >= 1 and n+1 <= N)
+    % Precompute f values for bootstrapped points
+    F = zeros(N, m);
+    for i = 1:4
+        F(i,:) = reshape(f(X(i), Y(i,:)), 1, []);
+    end
+
+    % Main loop
     for n = 4:(N-1)
-        % times for AB predictor: t_{n-3}..t_n
-        t_hist_AB = T(n-3 : n).';           % 1×4
-        y_hist_AB = Y(n-3 : n, :);          % 4×m
+        % Predictor (Adams-Bashforth)
+        f_hist = F(n-3:n, :);                   % f_{n-3} to f_n
+        y_hist_AB = Y(n-3:n, :);                % y_{n-3} to y_n
+        y_pred = adamsBashforth(y_hist_AB, h, f_hist);
 
-        % predictor step
-        y_pred = adamsBashforth(f, t_hist_AB, y_hist_AB, h);
+        % Evaluate f at predicted point
+        f_np1_pred = reshape(f(X(n+1), y_pred), 1, []);
 
-        % times for AM corrector: t_{n-2}..t_{n+1}
-        t_hist_AM = T(n-2 : n+1).';         % 1×4
-        y_hist_AM = Y(n-2 : n, :);          % 3×m
+        % Corrector (Adams-Moulton)
+        y_hist_AM = Y(n-2:n, :);                % y_{n-2} to y_n
+        f_hist_AM = F(n-2:n, :);                % f_{n-2} to f_n
+        y_corr = adamsMoulton(y_hist_AM, h, f_hist_AM, f_np1_pred);
 
-        % corrector step
-        y_corr = adamsMoulton(f, t_hist_AM, y_hist_AM, h, y_pred);
-
-        % store
-        Y(n+1, :) = y_corr;
+        % Store corrected value
+        Y(n+1,:) = y_corr;
+        F(n+1,:) = reshape(f(X(n+1), y_corr), 1, []);
     end
 end

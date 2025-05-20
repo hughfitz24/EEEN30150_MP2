@@ -1,8 +1,16 @@
-function y_pred = adamsBashforth(f, t_hist, y_hist, h)
+function y_pred = adamsBashforth(y_hist, h, f_hist)
+    % adamsBashforth.m
+    % Solve ODE using 4-Step Adams-Bashforth method
+    %   Inputs:
+    %     y_hist    - Previous 4 values of the independent variable y
+    %     h         - Step size
+    %     f_hist    - Previous 4 solutions of the system
+    %   Output:
+    %     y_pred    - Solution vector/matrix. Acts as predicted values for
+    %                 the Adams-Moulton corrective method.
 
-    f0 = reshape(f(t_hist(1), y_hist(1,:)), 1, []);
-    f1 = reshape(f(t_hist(2), y_hist(2,:)), 1, []);
-    f2 = reshape(f(t_hist(3), y_hist(3,:)), 1, []);
-    f3 = reshape(f(t_hist(4), y_hist(4,:)), 1, []);
-    y_pred = y_hist(4,:) + h * (55/24*f3 - 59/24*f2 + 37/24*f1 - 9/24*f0);
+    % Implementation of Adams-Bashforth method, using scaling factors for 4-Step Adams Bashforth and
+    % previous solutions passed as input
+    y_pred = y_hist(4,:) + h * (55/24*f_hist(4,:) - 59/24*f_hist(3,:) ...
+                                + 37/24*f_hist(2,:) - 9/24*f_hist(1,:));
 end
