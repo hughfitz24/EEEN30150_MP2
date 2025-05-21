@@ -4,6 +4,7 @@ function denom = Denominator(init_pos_vec)
 %
 % Inputs
 % init_pos_vec (36x1 column vector) equals the initial X Y Z position coordinates 
+% init_pos_vec (36x1 column vector) equals the initial X Y Z position coordinates 
 % of each of the 12 bodies in the Solar System animation
 %
 % Outputs

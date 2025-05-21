@@ -1,4 +1,12 @@
-function num = Numerator 
+function num = Numerator
+% num = Numerator
+% Calculates G_scaled * M_j for each of the bodies
+%
+% Outputs
+% num (12x1 column vector) equals the calculated values for each of the bodies
+
+% Version 1: created 20/05/2025. Author: David Cronin
+
 masses = [1.9984E30;    % Sun
           3.301E23;     % Mercury
           4.8673E24;    % Venus
@@ -18,4 +26,4 @@ day = 86400; % s
 
 G_scaled = G*day^2*AU^-3; % AU^3 kg^-1 day^-2
 
-num = G_scaled.*masses;
+num = G_scaled.*masses; % AU^3 day^-2
