@@ -15,9 +15,17 @@ function dydx = solarSystemEquations(init_pos_vec, init_vel_vec)
 
 % Version 1: created 20/05/2025. Author: David Cronin
 
+% Error check on inputs
+if ~isequal(size(init_pos_vec), [36, 1]) || ~isreal(init_pos_vec)
+ error('Initial position vector arguments must real and contained within a 36x1 column vector') 
+end
+if ~isequal(size(init_vel_vec), [36, 1]) || ~isreal(init_vel_vec)
+ error('Initial velocity vector arguments must real and contained within a 36x1 column vector') 
+end
 
-num = Scaled_Masses;                      % Compute numerators and denominators 
-denom = Relative_Positions(init_pos_vec); % for equations
+
+num = Numerator;                      % Compute numerators and denominators 
+denom = Denominator(init_pos_vec); % for equations
 
 Equations = zeros(72, 72); % Initialise equation matrix
 
@@ -30,7 +38,7 @@ for i = 1:12
     col_idx = 1 + (i-1)*3;
 
     % Multiply value by identity matrix 
-    Equations(row_idx:row_idx+2, col_idx:col_idx+2) = sum_val .* eye(3);
+    Equations(row_idx:row_idx+2, col_idx:col_idx+2) = -sum_val .* eye(3);
 end
 
 % Fill Off-Diagonal Interactions (excluding the main diagonal)
@@ -45,7 +53,7 @@ for colBody = 1:12
         row_idx = 37 + (rowBody-1)*3;
         
         Equations(row_idx:row_idx+2, col_idx:col_idx+2) = ...
-            (num(rowBody) / denom(colBody, rowBody)) * eye(3);
+            (num(colBody) / denom(colBody, rowBody)) * eye(3);
     end
 end
 
@@ -54,5 +62,6 @@ for i = 1:36
     Equations(i, 36 + i) = 1;
 end
 
-vec = [init_pos_vec; init_vel_vec];
+vec = [init_pos_vec; init_vel_vec]; % Combine input arguments to one vector
+
 dydx = Equations*vec;
