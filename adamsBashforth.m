@@ -11,6 +11,6 @@ function y_pred = adamsBashforth(y_hist, h, f_hist)
 
     % Implementation of Adams-Bashforth method, using scaling factors for 4-Step Adams Bashforth and
     % previous solutions passed as input
-    y_pred = y_hist(4,:) + h * (55/24*f_hist(4,:) - 59/24*f_hist(3,:) ...
-                                + 37/24*f_hist(2,:) - 9/24*f_hist(1,:));
+    y_pred = y_hist(:,4) + h * (55/24*f_hist(:,4) - 59/24*f_hist(:,3) ...
+                                + 37/24*f_hist(:,2) - 9/24*f_hist(:,1));
 end

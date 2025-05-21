@@ -12,8 +12,8 @@ function Y = rungeKutta(f, y0, x0, xf, h)
 %   Output:
 %     Y         - Solution vector/matrix
 
-    % Ensure y0 is a row vector
-    y0 = reshape(y0, 1, []);
+    % Ensure y0 is a column vector
+    y0 = y0(:);
     % Get number of varibles in the system
     numVars = length(y0);
     
@@ -21,25 +21,24 @@ function Y = rungeKutta(f, y0, x0, xf, h)
     n = round((xf - x0) / h) + 1;
     
     % Prepare output array
-    Y = zeros(n, numVars);
-    Y(1, :) = y0;
-    
-    % Initialize x
+    Y = zeros(numVars, n);
+    Y(:,1) = y0;
     x = x0;
+  
     
     % Perform RK4 integration
     for i = 2:n
         % Current state
-        yi = Y(i-1, :);
+        yi = Y(:, i-1);
         
         % RK4 stages, reshape used to ensure row vectors
-        k1 = reshape(f(x, yi), 1, []);
-        k2 = reshape(f(x + h/2, yi + h/2 * k1), 1, []);
-        k3 = reshape(f(x + h/2, yi + h/2 * k2), 1, []);
-        k4 = reshape(f(x + h, yi + h * k3), 1, []);
+        k1 = f(x, yi);
+        k2 = f(x + h/2, yi + h/2 * k1);
+        k3 = f(x + h/2, yi + h/2 * k2);
+        k4 = f(x + h, yi + h * k3);
         
         % Update solution
-        Y(i, :) = yi + h/6 * (k1 + 2*k2 + 2*k3 + k4);
+        Y(:, i) = yi + h/6 * (k1 + 2*k2 + 2*k3 + k4);
         
         % Update x
         x = x + h;
