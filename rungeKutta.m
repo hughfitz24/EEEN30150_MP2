@@ -11,6 +11,8 @@ function Y = rungeKutta(f, y0, x0, xf, h)
 %
 %   Output:
 %     Y         - Solution vector/matrix
+% Written by Hugh Fitzpatrick, 22341351
+
 
     % Ensure y0 is a column vector
     y0 = y0(:);

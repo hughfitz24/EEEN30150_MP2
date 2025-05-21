@@ -8,6 +8,7 @@ function y_pred = adamsBashforth(y_hist, h, f_hist)
     %   Output:
     %     y_pred    - Solution vector/matrix. Acts as predicted values for
     %                 the Adams-Moulton corrective method.
+    % Written by Hugh Fitzpatrick, 22341351
 
     % Implementation of Adams-Bashforth method, using scaling factors for 4-Step Adams Bashforth and
     % previous solutions passed as input

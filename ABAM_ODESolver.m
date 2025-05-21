@@ -12,6 +12,7 @@ function [X, Y] = ABAM_ODESolver(f, y0, x0, xf, h)
     % Outputs:
     %   X  - x values
     %   Y  - y values (each row corresponds to x in X)
+    % Written by Hugh Fitzpatrick, 22341351
 
     X = (x0:h:xf);
     N = numel(X);
@@ -21,8 +22,6 @@ function [X, Y] = ABAM_ODESolver(f, y0, x0, xf, h)
     m = numel(y0);
 
     % Preallocate
-    disp(N)
-    disp(m)
     Y = zeros(m, N);
     Y(:,1) = y0;
 
