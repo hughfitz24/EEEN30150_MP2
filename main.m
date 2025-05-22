@@ -14,9 +14,8 @@
 
 % Mode 2. Verification Mode:
 %           Runs the ODE solver on the system, does not animate but instead  
-%           passes the data on to a verification function, which uses measured 
-%           data from JPL Horizons to verify the
-%           accuracy of the model. 
+%           passes the data on to a verification function, which verifiies
+%           if the simulated data satisfies Kepler's Laws. 
 
 % Mode 3. Debug Mode:
 %           Runs the ODE solver on the systema and animates, but  
@@ -31,28 +30,33 @@ modes = {
    3, 'Debug Mode'
 };
 
-disp("------------- EEEN30150: Modelling and Simulation -------------")
-disp("Minor Project 2: Simulation of 12 Bodies of Solar System")
-disp("Team 2")
-disp("------Execution Modes ------")
-disp('Mode 1. Simulation Mode:')
-disp('          Runs the ODE solver on the system for the')
-disp('          requested time period; defaults at 2 Neptunian years.')
-disp('          Plots the system using the animation files, generating videos of the entire')
-disp('          system, as well as zoomed in views on planets with orbiting moons.')
-disp(' ')
-disp('Mode 2. Verification Mode:')
-disp('          Runs the ODE solver on the system, does not animate but instead')
-disp('          passes the data on to a verification function, which uses measured')
-disp('          data from JPL Horizons to verify the')
-disp('          accuracy of the model.')
-disp(' ')
-disp('Mode 3. Debug Mode:')
-disp('          Runs the ODE solver on the system, does not animate or verify but')
-disp('          instead prints messages regarding execution time, number of')
-disp('          iterations etc for all numerical methods and animation steps.')
-disp("------Select Mode ------")
-mode = input("Please enter the requested mode: ");
+clc;
+fprintf('\n========================================================================\n');
+fprintf('\n        EEEN30150: Modelling and Simulation\n');
+fprintf('        Minor Project 2: Simulation of 12 Bodies of Solar System\n');
+fprintf('        Team 2: Hugh Fitzpatrick, Liam Whelan, & David Cronin\n');
+fprintf('\n========================================================================\n');
+
+fprintf('---------------------- Execution Modes ----------------------\n');
+fprintf(' Mode 1: Simulation Mode\n');
+fprintf('   - Runs the ODE solver on the system for the\n');
+fprintf('     requested time period (default: 2 Neptunian years).\n');
+fprintf('   - Generates animated plots of the entire system,\n');
+fprintf('     including zoomed-in views on planets with orbiting moons.\n\n');
+
+fprintf(' Mode 2: Verification Mode\n');
+fprintf('   - Runs the ODE solver but skips animation.\n');
+fprintf('   - Passes data to a verification function using Keplers \n');
+fprintf('     Laws to evaluate model accuracy.\n\n');
+
+fprintf(' Mode 3: Debug Mode\n');
+fprintf('   - Runs the ODE solver without animation or verification.\n');
+fprintf('   - Prints detailed execution stats: time, iterations,\n');
+fprintf('     numerical method diagnostics, and animation step info.\n');
+fprintf('-------------------------------------------------------------\n\n');
+
+mode = input('Please enter the requested mode (1–3): ');
+
 
 valid_modes = [modes{:,1}];
 if ismember(mode, valid_modes)
@@ -64,7 +68,6 @@ end
 
 % Constants definition
 neptunianYear = 60190; % 1 Neptunian Year in the time unit used in simulation (1 day)
-numNeptunianYears = 2; % Number of Neptunian Years to Simulate
 stepSize = 0.5; % Step Size, justified in report 
 
 %% ----------------------------------
@@ -75,6 +78,12 @@ stepSize = 0.5; % Step Size, justified in report
 
 initial_positions = readmatrix('initial_positions.txt');
 initial_velocities = readmatrix('initial_velocities.txt');
+
+numNeptunianYears = input("Please enter the number of Neptunian Years to simulate (minimum of 2): ");
+
+if numNeptunianYears < 2
+    error('Number of Neptunian years to simulate must equal or exceed 2.')
+end
 
 % Define initial state
 y0 = [initial_positions; initial_velocities];
@@ -89,11 +98,12 @@ f = @(x, y) solarSystemEquations(x, y);
 %% Step 2: Complete Simulation
 %% ----------------------------------
 
-fprintf("Simulating %d Neptunian Years of the solar system, beginning on the 5th of May 2025, simulating %d Earth days.", numNeptunianYears, xf);
+fprintf("Simulating %d Neptunian Years of the solar system, beginning on the 5th of May 2025, simulating %d Earth days. \n", numNeptunianYears, xf);
 tic;
 [X, Y] = ABAM_ODESolver(f, y0, x0, xf, h);
+% Stop and delete the timer after the solver completes
 ODESolveTime = toc;
-fprintf('Simulation completed for %d Earth days.', xf);
+fprintf('\n Simulation completed for %d Earth days.\n', xf);
 
 %% ----------------------------------
 %% Step 3: Mode Specific Functionality
@@ -102,13 +112,21 @@ fprintf('Simulation completed for %d Earth days.', xf);
 switch mode
     case 1
         % Animation goes here
+        disp('---------- Animation ---------')
+        disp('Generating animation...')
     case 2
         % Verification logic goes here
+        disp('---------- Verification ---------')
+        verifyKeplers(X, Y);
+
     case 3
         % Debug info comes here
-
-
+        disp('---------- Runtime Statistics ---------')
+        fprintf('ODE Solver: ')
+        fprintf('Execution time: %d sec\n', ODESolveTime);
+        fprintf('Num of iterations: %d sec\n', length(X));
     otherwise
         % Should never enter this mode. 
         error("Invalid mode selected")
 end
+fprintf('---------------------- END OF EXECUTION ----------------------\n');
