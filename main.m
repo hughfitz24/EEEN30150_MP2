@@ -24,6 +24,10 @@
 
 % Written by Hugh Fitzpatrick, 22341351
 
+% Constants definition
+neptunianYear = 60190; % 1 Neptunian year in Earth days
+stepSize = 0.448; % Step Size, justified in report 
+
 modes = {
    1, 'Simulation Mode';
    2, 'Verification Mode';
@@ -37,7 +41,7 @@ fprintf('        Minor Project 2: Simulation of 12 Bodies of Solar System\n');
 fprintf('        Team 2: Hugh Fitzpatrick, Liam Whelan, & David Cronin\n');
 fprintf('\n========================================================================\n');
 
-fprintf('---------------------- Execution Modes ----------------------\n');
+fprintf('\n---------------------- Execution Modes ----------------------\n');
 fprintf(' Mode 1: Simulation Mode\n');
 fprintf('   - Runs the ODE solver on the system for the\n');
 fprintf('     requested time period (default: 2 Neptunian years).\n');
@@ -66,9 +70,13 @@ else
     error('Invalid mode selected. Please enter 1, 2, or 3.');
 end
 
-% Constants definition
-neptunianYear = 60190; % 1 Neptunian Year in the time unit used in simulation (1 day)
-stepSize = 0.5; % Step Size, justified in report 
+if mode == 3
+    DEBUG = true;
+else
+    DEBUG = false;
+end
+
+
 
 %% ----------------------------------
 %% Step 1: System Setup
@@ -98,12 +106,13 @@ f = @(x, y) solarSystemEquations(x, y);
 %% Step 2: Complete Simulation
 %% ----------------------------------
 
-fprintf("Simulating %d Neptunian Years of the solar system, beginning on the 5th of May 2025, simulating %d Earth days. \n", numNeptunianYears, xf);
+fprintf("Simulating %d Neptunian Years of the solar system, beginning on Earth date 5th of May 2025, 00:00:00... \n", numNeptunianYears);
 tic;
-[X, Y] = ABAM_ODESolver(f, y0, x0, xf, h);
-% Stop and delete the timer after the solver completes
+[X, Y, timeStats] = ABAM_ODESolver(f, y0, x0, xf, h, DEBUG);
 ODESolveTime = toc;
-fprintf('\n Simulation completed for %d Earth days.\n', xf);
+fprintf('\n Simulation completed for %d Earth days.\n\n', xf);
+
+
 
 %% ----------------------------------
 %% Step 3: Mode Specific Functionality
@@ -114,19 +123,26 @@ switch mode
         % Animation goes here
         disp('---------- Animation ---------')
         disp('Generating animation...')
+        
     case 2
         % Verification logic goes here
         disp('---------- Verification ---------')
         verifyKeplers(X, Y);
 
     case 3
-        % Debug info comes here
+        % Debug info goes here
+        % Ensure debug mode was entered
+        if ~DEBUG
+            error('DEBUG mode not entered.')
+        end
         disp('---------- Runtime Statistics ---------')
-        fprintf('ODE Solver: ')
-        fprintf('Execution time: %d sec\n', ODESolveTime);
-        fprintf('Num of iterations: %d sec\n', length(X));
+        fprintf('Total Execution time: %.6f sec\n', ODESolveTime);
+        fprintf('Num of iterations: %d \n', length(X));
+        fprintf('Numerical Methods Breakdown: \n')
+        fprintf('4th Order Runge Kutta Startup:\n\tTotal execution time: %.6f s \n\tAvg time per iteration: %.6f s \n', timeStats(1,:), timeStats(1,:)/4);
+        fprintf('Adams-Bashforth Adams-Moulton Predictor Corrector:\n\tTotal execution time: %.6f s \n\tAvg time per iteration: %.6f s \n', timeStats(2, :), timeStats(3, :));
     otherwise
         % Should never enter this mode. 
         error("Invalid mode selected")
 end
-fprintf('---------------------- END OF EXECUTION ----------------------\n');
+fprintf('\n========================================================================\n');
