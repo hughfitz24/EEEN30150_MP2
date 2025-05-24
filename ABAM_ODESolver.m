@@ -67,19 +67,9 @@ function [X, Y, timeStats] = ABAM_ODESolver(f, y0, x0, xf, h, DEBUG)
         % Store corrected value
         Y(:,n+1) = y_corr;
         F(:,n+1) = f(X(n+1), y_corr);
-        % Update progress every 5%
-        current_iter = n - 3;
-        progress = current_iter / total_iterations * 100;
-        
-        if progress - last_reported >= report_interval || n == N-1
-            fprintf('ABAM Progress: %.1f%% complete\n', progress);
-            last_reported = progress;
-        end
 
     end
     
-    fprintf('\n'); % New line when done
-
     ABAM_time = toc;
     if DEBUG
         timeStats(2, :) = ABAM_time;

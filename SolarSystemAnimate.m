@@ -14,8 +14,6 @@ function SolarSystemAnimate(data, View)
 % 
 % Version 1: Created by Liam Whelan - 11/05/2025. 
 
-data = load('finaldata.mat').Y;
-
 % Default View if not inputted by User
     if nargin < 2
         View = 1;

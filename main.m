@@ -122,7 +122,12 @@ switch mode
     case 1
         % Animation goes here
         disp('---------- Animation ---------')
+        animationMode = input('Enter animation mode (1 = wide view, 2 = View of inner planets): ');
+        if animationMode ~= 1 && mode ~= 2
+            error('Invalid mode selected.')
+        end
         disp('Generating animation...')
+        SolarSystemAnimate(Y, animationMode);
         
     case 2
         % Verification logic goes here
@@ -136,6 +141,7 @@ switch mode
             error('DEBUG mode not entered.')
         end
         disp('---------- Runtime Statistics ---------')
+        fprintf('Step Size = %d\n', stepSize)
         fprintf('Total Execution time: %.6f sec\n', ODESolveTime);
         fprintf('Num of iterations: %d \n', length(X));
         fprintf('Numerical Methods Breakdown: \n')
